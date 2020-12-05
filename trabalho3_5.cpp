@@ -1,6 +1,7 @@
 #include <SFML/Graphics.hpp>
 #include <unistd.h>
 #include <semaphore.h>
+#include <iostream>
 
 using namespace std;
 
@@ -8,7 +9,7 @@ int dim_x  = 36;
 int dim_y  = 36;
 int x_inicial = 166;
 int y_inicial = 38;
-int velocidades[4] = {5,5,5,5};
+int velocidades[4] = {1,1,1,1};
 int VelocidadeMinima = 1000000;
 int N1 = (VelocidadeMinima*((100.0 - ((velocidades[0]-1)*10.0))/100.0));
 int N2 = (VelocidadeMinima*((100.0 - ((velocidades[1]-1)*10.0))/100.0));
@@ -16,7 +17,7 @@ int N3 = (VelocidadeMinima*((100.0 - ((velocidades[2]-1)*10.0))/100.0));
 int N4 = (VelocidadeMinima*((100.0 - ((velocidades[3]-1)*10.0))/100.0));
 
 float calcular_celocidade(int n){
-  return (VelocidadeMinima*((100.0 - ((velocidades[0]-1)*10.0))/100.0));
+  return (VelocidadeMinima*((100.0 - ((n-1)*10.0))/100.0));
 }
 
 
@@ -102,8 +103,9 @@ void rotacao(sf::Sprite *trem,int x){
     break;
     case 2:
     trem->rotate(90);
-    trem->move(dim_x,0);
 
+    trem->move(dim_x,0);
+    // trem->move(0,-dim_y);
     break;
     case 3:
     trem->rotate(90);
@@ -141,140 +143,265 @@ void rotacao(sf::Sprite *trem,int x){
 void L1(sf::Sprite *trem, int *N){
   for(int i=0; i<3; i++)
   {
-    trem->move(0,-dim_y);
+    int j = 0;
+    while(j<dim_x){
+      trem->move(0,-1);
+      j++;
+      usleep(*N/dim_x);
+    }
+    // trem->move(0,-dim_y);
+    // usleep(*N);
+
     if(i==2)
     rotacao(trem,8);
-
-    usleep(*N);
   }
 
 }
 void L2(sf::Sprite *trem, int *N){
   for(int i=0; i<3; i++)
   {
-    trem->move(dim_x,0);
-    usleep(*N);
+    int j = 0;
+    while(j<dim_x){
+      trem->move(1,0);
+      j++;
+      usleep(*N/dim_x);
+    }
+    // trem->move(dim_x,0);
+    // usleep(*N);
   }
 }
 void L3(sf::Sprite *trem, int *N,bool direcao){
   if(direcao==true){
+    int j = 0;
+    while(j<dim_x){
+      trem->move(1,0);
+      j++;
+      usleep(*N/dim_x);
+    }
     rotacao(trem,5);
-    trem->move(dim_x,0);
-    usleep(*N);
+
+    // trem->move(dim_x,0);
+    // usleep(*N);
     for(int i=0; i<3; i++)
     {
-      trem->move(0,dim_y);
-      usleep(*N);
+      int j = 0;
+      while(j<dim_x){
+        trem->move(0,1);
+        j++;
+        usleep(*N/dim_x);
+      }
+      // trem->move(0,dim_y);
+      // usleep(*N);
     }
   }
   else{
-    trem->move(-dim_x,0);
+    int j = 0;
+    while(j<dim_x){
+      trem->move(-1,0);
+      j++;
+      usleep(*N/dim_x);
+    }
+    // trem->move(-dim_x,0);
     rotacao(trem,7);
-    usleep(*N);
-    sem_post(&sem6);
-    sem_post(&sem4);
-    sem_post(&sem7);
+    // usleep(*N);
+    // sem_post(&sem6);
+    // sem_post(&sem4);
+    // sem_post(&sem7);
     for(int i=0; i<4; i++)
     {
-      trem->move(0,-dim_y);
+      int j = 0;
+      while(j<dim_x){
+        trem->move(0,-1.0);
+        j++;
+        usleep(*N/dim_x);
+      }
+      if(i==0){
+        sem_post(&sem6);
+        sem_post(&sem4);
+        sem_post(&sem7);
+      }
+      // trem->move(0,-dim_y);
       if(i==3)
-        rotacao(trem,8);
-      usleep(*N);
+      rotacao(trem,8);
+      // usleep(*N);
+    }
+    // sem_post(&sem1);
+    // sem_post(&sem8);
+    j = 0;
+    while(j<dim_x){
+      trem->move(1,0);
+      j++;
+      usleep(*N/dim_x);
     }
     sem_post(&sem1);
     sem_post(&sem8);
-    trem->move(dim_x,0);
-    usleep(*N);
+    // trem->move(dim_x,0);
+    // usleep(*N);
 
 
   }
 }
 void L4(sf::Sprite *trem, int *N,bool direcao){
-  if(direcao==false)
-  {
-    trem->move(0,dim_y);
+  if(direcao==false){
+    int j = 0;
+    while(j<dim_x){
+      trem->move(0,1);
+      j+=1;
+      usleep((*N/dim_x)*1);
+    }
+    // trem->move(0,dim_y);
     rotacao(trem,6);
-    usleep(*N);
-    sem_post(&sem6);
-    sem_post(&sem1);
-    sem_post(&sem8);
+    // usleep(*N);
+
     for(int i=0; i<4; i++)
     {
-      if(i==0){
+      if(i==1){
+        sem_post(&sem6);
+        sem_post(&sem1);
+        sem_post(&sem8);
       }
-      trem->move(-dim_x,0);
+      int j = 0;
+      while(j<dim_x){
+        trem->move(-1,0);
+        j+=1;
+        usleep((*N/dim_x)*1);
+      }
+      // trem->move(-dim_x,0);
       if(i==3)
       rotacao(trem,7);
-      usleep(*N);
+      // usleep(*N);
+    }
+    j = 0;
+    while(j<dim_x){
+      trem->move(0,-1);
+      j+=1;
+      usleep((*N/dim_x)*1);
     }
     sem_post(&sem3);
-
-    trem->move(0,-dim_y);
-    usleep(*N);
+    // trem->move(0,-dim_y);
+    // usleep(*N);
 
   }
   else{
+    int j = 0;
+    while(j<dim_x){
+      trem->move(0,-1.0);
+      j+=1;
+      usleep((*N/dim_x)*1);
+    }
     rotacao(trem,1);
-    trem->move(0,-dim_y);
-    usleep(*N);
+
+    // trem->move(0,-dim_y);
+    // usleep(*N);
     for(int i=0; i<3; i++)
     {
-      trem->move(dim_x,0);
-      usleep(*N);
+      int j = 0;
+      while(j<dim_x){
+        trem->move(1,0);
+        j++;
+        usleep((*N/dim_x));
+      }
+      // trem->move(dim_x,0);
+      // usleep(*N);
     }
   }
 }
 void L5(sf::Sprite *trem, int *N,bool direcao){
   if(direcao==true)  {
+    int j = 0;
+    while(j<dim_x){
+      trem->move(1,0);
+      j+=1;
+      usleep((*N/dim_x)*1);
+    }
+    // trem->move(dim_x,0);
+    // usleep(*N);
     rotacao(trem,5);
-    trem->move(dim_x,0);
-    usleep(*N);
     for(int i=0; i<3; i++)
     {
-      trem->move(0,dim_y);
-      usleep(*N);
+      int j = 0;
+      while(j<dim_x){
+        trem->move(0,1);
+        j+=1;
+        usleep((*N/dim_x)*1);
+      }
+      // trem->move(0,dim_y);
+      // usleep(*N);
     }
   }
-  else
-  {
-    trem->move(-dim_x,0);
+  else{
+    int j = 0;
+    while(j<dim_x){
+      trem->move(-1,0);
+      j+=1;
+      usleep((*N/dim_x)*1);
+    }
+    // trem->move(-dim_x,0);
+    // usleep(*N);
     rotacao(trem,7);
-    usleep(*N);
-    sem_post(&sem5);
+
     for(int i=0; i<4; i++)
     {
-      trem->move(0,-dim_y);
-      usleep(*N);
+      int j = 0;
+      while(j<dim_x){
+        trem->move(0,-1);
+        j+=1;
+        usleep((*N/dim_x)*1);
+      }
+      if(i==0)
+      sem_post(&sem5);
+      // trem->move(0,-dim_y);
+      // usleep(*N);
       if(i==3)
-        rotacao(trem,8);
+      rotacao(trem,8);
+    }
+
+    j = 0;
+    while(j<dim_x){
+      trem->move(1,0);
+      j+=1;
+      usleep((*N/dim_x)*1);
     }
     sem_post(&sem8);
     sem_post(&sem7);
     sem_post(&sem2);
-    trem->move(dim_x,0);
-    usleep(*N);
+    // trem->move(dim_x,0);
+    // usleep(*N);
   }
 }
 void L6(sf::Sprite *trem, int *N,bool direcao){
   if(direcao==false){
-    trem->move(0,dim_y);
+    int j = 0;
+    while(j<dim_x){
+      trem->move(0,1);
+      j+=1;
+      usleep((*N/dim_x)*1);
+    }
     rotacao(trem,6);
-    usleep(*N);
-    sem_post(&sem2);
+
     for(int i=0; i<3; i++)
     {
-      trem->move(-dim_x,0);
-      usleep(*N);
+      int j = 0;
+      while(j<dim_x){
+        trem->move(-1,0);
+        j+=1;
+        usleep((*N/dim_x)*1);
+      }
+      if(i==0){
+        sem_post(&sem2);
+      }
     }
   }
-  else
-  {
+  else{
     for(int i=0; i<4; i++)
     {
-
-      trem->move(dim_x,0);
-      usleep(*N);
-      if(i==0){
+      int j = 0;
+      while(j<dim_x){
+        trem->move(1,0);
+        j++;
+        usleep((*N/dim_x));
+      }
+      if(i==1){
         sem_post(&sem6);
         sem_post(&sem3);
       }
@@ -284,8 +411,14 @@ void L6(sf::Sprite *trem, int *N,bool direcao){
 void L7(sf::Sprite *trem, int *N,bool flag){
   for(int i=0; i<2; i++)
   {
-    trem->move(dim_x,0);
-    usleep(*N);
+    int j = 0;
+    while(j<dim_x){
+      trem->move(1,0);
+      j+=1;
+      usleep((*N/dim_x)*1);
+    }
+    // trem->move(dim_x,0);
+    // usleep(*N);
     if(i==0  && flag){
       // sem_post(&sem1);
       // sem_post(&sem8);
@@ -295,76 +428,140 @@ void L7(sf::Sprite *trem, int *N,bool flag){
 void L8(sf::Sprite *trem, int *N,bool flag){
   for(int i=0; i<2; i++)
   {
-    trem->move(dim_x,0);
-    usleep(*N);
+    int j = 0;
+    while(j<dim_x){
+      trem->move(1,0);
+      j+=1;
+      usleep((*N/dim_x)*1);
+    }
+    // trem->move(dim_x,0);
+    // usleep(*N);
     if(i==0 && flag){
       // sem_post(&sem8);
       // sem_post(&sem7);
       // sem_post(&sem2);
     }
   }
-  rotacao(trem,5);
+  // rotacao(trem,5);
 }
 void L9(sf::Sprite *trem, int *N){
-  trem->move(dim_x,0);
-  usleep(*N);
+  // trem->move(dim_x,0);
+  // usleep(*N);
+  int j = 0;
+  while(j<dim_x){
+    trem->move(1,0);
+    j+=1;
+    usleep((*N/dim_x)*1);
+  }
+  rotacao(trem,5);
   for(int i=0; i<3; i++)
   {
-    trem->move(0,dim_y);
-    usleep(*N);
+    int j = 0;
+    while(j<dim_x){
+      trem->move(0,1);
+      j+=1;
+      usleep((*N/dim_x)*1);
+    }
+    // trem->move(0,dim_y);
+    // usleep(*N);
   }
 }
 void L10(sf::Sprite *trem, int *N,bool direcao){
   if(direcao==false){
-    trem->move(0,dim_y);
+    int j = 0;
+    while(j<dim_x){
+      trem->move(0,1);
+      j+=1;
+      usleep((*N/dim_x)*1);
+    }
+    // trem->move(0,dim_y);
+    // usleep(*N);
     rotacao(trem,6);
-    usleep(*N);
     for(int i=0; i<3; i++)
     {
-      trem->move(-dim_x,0);
-      usleep(*N);
+      int j = 0;
+      while(j<dim_x){
+        trem->move(-1,0);
+        j+=1;
+        usleep((*N/dim_x)*1);
+      }
+      // trem->move(-dim_x,0);
+      // usleep(*N);
     }
   }
-  else
-  {
+  else{
     for(int i=0; i<5; i++)
     {
-      trem->move(dim_x,0);
-      usleep(*N);
-      if(i==0){
+      int j = 0;
+      while(j<dim_x){
+        trem->move(1,0);
+        j+=1;
+        usleep((*N/dim_x)*1);
+      }
+      if(i==4){
+        //rotacao(trem,2);
+      }
+      // trem->move(dim_x,0);
+      // usleep(*N);
+      if(i==1){
         sem_post(&sem4);
         sem_post(&sem8);
       }
     }
     rotacao(trem,2);
+    // sem_post(&sem7);
+    // sem_post(&sem5);
+    int j = 0;
+    while(j<dim_x){
+      trem->move(0,1);
+      j+=1;
+      usleep((*N/dim_x)*1);
+    }
+    // trem->move(0,dim_y);
+    // usleep(*N);
     sem_post(&sem7);
     sem_post(&sem5);
-    trem->move(0,dim_y);
-    usleep(*N);
 
   }
 }
 void L11(sf::Sprite *trem, int *N){
   for(int i=0; i<3; i++)
   {
-    trem->move(0,-dim_y);
-    usleep(*N);
+    int j = 0;
+    while(j<dim_x){
+      trem->move(0,-1);
+      j++;
+      usleep(*N/dim_x);
+    }
+    // trem->move(0,-dim_y);
+    // usleep(*N);
   }
 }
 void L12(sf::Sprite *trem, int *N){
 
   for(int i=0; i<3; i++)
   {
-    trem->move(0,dim_y);
-    usleep(*N);
+    int j = 0;
+    while(j<dim_x){
+      trem->move(0,1);
+      j++;
+      usleep(*N/dim_x);
+    }
+    // trem->move(0,dim_y);
+    // usleep(*N);
   }
   rotacao(trem,4);
 }
 void L13(sf::Sprite *trem, int *N){
   for(int i=0; i<12; i++)
   {
-    trem->move(-dim_x,0);
-    usleep(*N);
+    int j = 0;
+    while(j<dim_x){
+      trem->move(-1,0);
+      j++;
+      usleep(*N/dim_x);
+    }
+    // /usleep(*N);
   }
   rotacao(trem,3);
 }
@@ -606,13 +803,11 @@ void controle_velocidade(){
   if(sf::Mouse::isButtonPressed(sf::Mouse::Left)){
     //Velocidade do trem_1
     if(position.x>=179 && position.x<179+70){
-
       //Aumentar  nivel Velocidade do trem_1
       if(position.y>=487+30 && position.y<=487+30+30 ){
 
         if(velocidades[0]<10){
           velocidades[0]++;
-          // N1 = (VelocidadeMinima*((100.0 - ((velocidades[0]-1)*10.0))/100.0));
           N1 = calcular_celocidade(velocidades[0]);
         }
         textV1.setString(to_string(velocidades[0]));
@@ -621,9 +816,7 @@ void controle_velocidade(){
       else if(position.y<=487 && position.y>=487-30 ){
         if(velocidades[0]>1){
           velocidades[0]--;
-          // N1 = (VelocidadeMinima*((100.0 - ((velocidades[0]-1)*10.0))/100.0));
           N1 = calcular_celocidade(velocidades[0]);
-
         }
         textV1.setString(to_string(velocidades[0]));
       }
@@ -637,9 +830,8 @@ void controle_velocidade(){
       if(position.y>=487+30 && position.y<=487+30+30 ){
         if(velocidades[1]<10){
           velocidades[1]++;
-          N2 = (VelocidadeMinima*((100.0 - ((velocidades[1]-1)*10.0))/100.0));
+          N2 = calcular_celocidade(velocidades[1]);
         }
-
         textV2.setString(to_string(velocidades[1]));
       }
 
@@ -647,7 +839,7 @@ void controle_velocidade(){
       else if(position.y<=487 && position.y>=487-30 ){
         if(velocidades[1]>1){
           velocidades[1]--;
-          N2 = (VelocidadeMinima*((100.0 - ((velocidades[1]-1)*10.0))/100.0));
+          N2 = calcular_celocidade(velocidades[1]);
         }
         textV2.setString(to_string(velocidades[1]));
       }
@@ -659,7 +851,7 @@ void controle_velocidade(){
       if(position.y>=487+30 && position.y<=487+30+30 ){
         if(velocidades[2]<10){
           velocidades[2]++;
-          N3 = (VelocidadeMinima*((100.0 - ((velocidades[2]-1)*10.0))/100.0));
+          N3 = calcular_celocidade(velocidades[2]);
         }
         textV3.setString(to_string(velocidades[2]));
       }
@@ -668,7 +860,7 @@ void controle_velocidade(){
         if(velocidades[2]>1)
         {
           velocidades[2]--;
-          N3 = (VelocidadeMinima*((100.0 - ((velocidades[2]-1)*10.0))/100.0));
+          N3 = calcular_celocidade(velocidades[2]);
         }
 
         textV3.setString(to_string(velocidades[2]));
@@ -680,14 +872,14 @@ void controle_velocidade(){
       if(position.y>=487+30 && position.y<=487+30+30 ){
         if(velocidades[3]<10){
           velocidades[3]++;
-          N4 = (VelocidadeMinima*((100.0 - ((velocidades[3]-1)*10.0))/100.0));
+          N4 = calcular_celocidade(velocidades[3]);
         }
         textV4.setString(to_string(velocidades[3]));
       }
       else if(position.y<=487 && position.y>=487-30 ){
         if(velocidades[3]>1){
           velocidades[3]--;
-          N4 = (VelocidadeMinima*((100.0 - ((velocidades[3]-1)*10.0))/100.0));
+          N4 = calcular_celocidade(velocidades[3]);
         }
         textV4.setString(to_string(velocidades[3]));
       }
@@ -697,7 +889,7 @@ void controle_velocidade(){
 void janela(){
   if (! font. loadFromFile ( "arial.ttf" ))
   {
-      // erro ...
+    // erro ...
   }
 
   while (window.isOpen()){
